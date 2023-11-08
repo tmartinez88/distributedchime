@@ -1,5 +1,21 @@
-<html>
+<!DOCTYPE html>
+<html lang="eng">
   <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=.7"/>
+    <meta name="description" content="Distributed Chime (2023). Local Network Presence" />
+    <meta name="robots" content="index,follow" />
+    <meta property="og:title" content="Distributed Chime" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url"/>
+    <meta property="og:description" content="Distributed Chime by Tommy" />
+    <meta
+      property="og:image"
+      content="https://cdn.glitch.global/ad6b13f4-0f90-4f8d-83f1-e75baf871626/behavioralist screeny?v=1698220583140"
+    />
+    <meta name="twitter:card" content="summary" />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Playfair">
     <link rel="stylesheet" type="text/css" href="/style.css">
     <script type="text/javascript" src="https://cdn.cycling74.com/rnbo/1.1.0/rnbo.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
@@ -35,15 +51,15 @@
       const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
       socket.on('trigger', (data) => {
-        console.log(data);
+        //console.log(data);
         if (data[0] === nameField.value) {
           try {
-            haha(data[1]);
+            play(data[1]);
             gustState.innerHTML = "you played " + data[1];
             //audioPlayer.src = data[1];   
           }
           catch(error) {
-            console.log(error);
+            //console.log(error);
           }
         }
         else {
@@ -55,18 +71,9 @@
           }
         }
       });
-      /*
-      socket.on('response', (controller) => {
-        el = document.querySelector('.gustState');
-        el.innerHTML = 'a presence was detected at ' +new Date().toTimeString();
-        haha();
-      });
-      */
-
-      function haha(file) {
-        context.resume();  
+      
+      function play(file) {
         videoEl.src = file;
-        //videoEl.src =  vFiles[getRandomInt(vFiles.length)];
         videoEl.playbackRate = Math.random();
         videoEl.play();
       }
@@ -74,11 +81,12 @@
       function gust(){
         if (!playing) {
           context.resume();
-          buttonEl.innerHTML="stop";
+          buttonEl.innerHTML="play";
           playing = true;
+          videoEl.muted = true;
         }
         else {
-          buttonEl.innerHTML="participate";
+          buttonEl.innerHTML="stop";
           context.suspend();
           playing = false;
         }
@@ -91,8 +99,9 @@
         videoEl.src=null;
         context.suspend()
       }
+
       function submit() {
-        console.log(nameField.value);
+        //console.log(nameField.value);
         playing = true;
         context.resume();
         nameField.classList.add('disappear');
@@ -102,6 +111,7 @@
         document.querySelector("#nameStuff").classList.add('disappear');
         buttonEl.style.opacity = 1;
       }
+
       async function setup() {
           const WAContext = window.AudioContext || window.webkitAudioContext;
           context = new WAContext();
@@ -129,8 +139,8 @@
   </head>
   <body>
     <div class="controls">
-        <h1>distributed-chime</h1>
-        <p>a multi-person thing</p>
+        <h1>local links</h1>
+        <p>a locally networked multi-device audio work</p>
         <section id = "nameStuff">
           <p id="instruction">enter your handle to begin</p>
           <input type="text" id="name">
@@ -138,12 +148,11 @@
         </section>
         
         </br>
-        <button id = "buttonText" onclick="gust()" style="opacity:0">mute</button>
+        <button id = "buttonText" onclick="gust()" style="opacity:0">play</button>
         </br>
         </br>
         <section id = "participants">
           <audio id="audioPlayer" autoplay></audio>
-          
         </section>
         <p class="gustState">idle...</p> 
         <div id="videoPlayer">

@@ -2,9 +2,11 @@ body {
     margin:0;
     padding:0;
     margin-top:25px;
-    background-color:whitesmoke;
-    color:black;
-    text-shadow:1px 2px 4px grey;
+    background-color:black;
+    color:white;
+    font-family: 'Playfair', sans-serif;
+    font-size: 13px;
+    font-weight: 100;
     }
 
 .controls {
@@ -15,13 +17,13 @@ body {
 
 .gustState {
   font-size: 13;
-  font-family:'Times New Roman', Times, serif;
-  color:red;
+  
+  color:blue;
 }
 
 button {
   font-size:12;
-  font-family:Arial, Helvetica, sans-serif;
+  font-family: 'Playfair', sans-serif;
   font-style: italic;
   font-style: oblique;
   background-color:transparent;
@@ -29,15 +31,16 @@ button {
   border-radius:1000px;
   border-style:solid;
   border-width:1px; 
-  height:100px;
+  height:130px;
   width:200px;
   cursor:pointer;
-  color:black;
+  color:white;
   box-shadow:1px 2px 8px grey;
+  margin-left:10px;
 }
 
 p {
-    font-family:Verdana, Geneva, Tahoma, sans-serif
+  
 }
 
 video{
@@ -52,6 +55,8 @@ video{
 }
 
 #submit {
-  width:50px;
+  width:60px;
   height:20px;
+  font-family: 'Playfair', sans-serif;
+
 }
