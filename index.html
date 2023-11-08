@@ -12,7 +12,18 @@
       let buttonEl;
       let windText = ['a wind', 'a cold chill', 'whispers', 'listen'];
       let vFiles = ['video/chime.mov_1.mp4','video/chime.mov_2.mp4','video/chime.mov_3.mp4','video/chime.mov_4.mp4','video/chime.mov_5.mp4','video/chime.mov_6.mp4','video/chime.mov_7.mp4','video/chime.mov_8.mp4','video/chime.mov_9.mp4','video/chime.mov_10.mp4','video/chime.mov_11.mp4','video/chime.mov_12.mp4','video/chime2.mov_1.mp4','video/chime2.mov_2.mp4','video/chime2.mov_3.mp4','video/chime2.mov_4.mp4','video/chime2.mov_5.mp4','video/chime2.mov_6.mp4','video/chime2.mov_7.mp4','video/chime2.mov_8.mp4','video/chime2.mov_9.mp4','video/chime2.mov_10.mp4','video/chime2.mov_11.mp4'];
-      
+      let playing = false;
+      let nameField;
+      let audioPlayer;
+
+      document.addEventListener('DOMContentLoaded', function(event) { 
+        nameField = document.getElementById("name"); 
+        buttonEl = document.getElementById('buttonText');
+        audioPlayer = document.querySelector('#audioPlayer');
+        videoEl = document.getElementById('lumi');
+        gustState = document.querySelector('.gustState');
+        setup();
+      })
       function getRandomInt(max) {
         return Math.floor(Math.random() * max);
       }
@@ -23,42 +34,74 @@
       // Clamp number between two values with the following line:
       const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
-      socket.on('time', (timeString) => {
-        el = document.getElementById('server-time');
-        el.innerHTML = 'Server time: ' + timeString;
-      });
+      socket.on('trigger', (data) => {
+        console.log(data);
+        if (data[0] === nameField.value) {
+          try {
+            haha(data[1]);
+            gustState.innerHTML = "you played " + data[1];
+            //audioPlayer.src = data[1];   
+          }
+          catch(error) {
+            console.log(error);
+          }
+        }
+        else {
+          try {
+            gustState.innerHTML = data[0] + " played " + data[1]
+          }
+          catch(error) {
 
+          }
+        }
+      });
+      /*
       socket.on('response', (controller) => {
-        el = document.getElementById('gust-state');
+        el = document.querySelector('.gustState');
         el.innerHTML = 'a presence was detected at ' +new Date().toTimeString();
-        farocki();
+        haha();
       });
+      */
 
-      function farocki() {
-        videoEl = document.getElementById('lumi');
-        buttonEl = document.getElementById('buttonText');
-        videoEl.style.left = clamp((Math.random() * window.innerWidth), min, max) +'px';
-        videoEl.style.top = (Math.random() * window.innerHeight - 90) +'px';
-        buttonEl.innerHTML = windText[getRandomInt(windText.length)];
-        videoEl.src =  vFiles[getRandomInt(vFiles.length)];
+      function haha(file) {
+        context.resume();  
+        videoEl.src = file;
+        //videoEl.src =  vFiles[getRandomInt(vFiles.length)];
         videoEl.playbackRate = Math.random();
         videoEl.play();
-        //const source = context.createMediaElementSource(videoEl);    
       }
 
       function gust(){
-        socket.emit("controller", "gust");
-        //videoEl = document.getElementById('lumi');
+        if (!playing) {
+          context.resume();
+          buttonEl.innerHTML="stop";
+          playing = true;
+        }
+        else {
+          buttonEl.innerHTML="participate";
+          context.suspend();
+          playing = false;
+        }
         videoEl.muted = false;
         context.resume();
       }
 
       function stop(){
-        videoEl = document.getElementById('lumi');
         videoEl.pause();
         videoEl.src=null;
+        context.suspend()
       }
-
+      function submit() {
+        console.log(nameField.value);
+        playing = true;
+        context.resume();
+        nameField.classList.add('disappear');
+        socket.emit("name", nameField.value);
+        document.querySelector("#instruction").classList.add('disappear');
+        document.querySelector("#submit").classList.add('disappear');
+        document.querySelector("#nameStuff").classList.add('disappear');
+        buttonEl.style.opacity = 1;
+      }
       async function setup() {
           const WAContext = window.AudioContext || window.webkitAudioContext;
           context = new WAContext();
@@ -75,30 +118,36 @@
           // Create the devices
           const delayDevice = await createDevice({ context, patcher: delayPatcher });
           const reverbDevice = await createDevice({ context, patcher: reverbPatcher });
-          videoEl = document.getElementById('lumi');
           const source = context.createMediaElementSource(videoEl);
           // Connect the devices in series
           source.connect(delayDevice.node);
           delayDevice.node.connect(reverbDevice.node);
           reverbDevice.node.connect(outputNode);
       }
-
-      setup();
+      
     </script>
   </head>
   <body>
     <div class="controls">
-        <h1>Gepetto's Ghost</h1>
-        <p>a multi-user cyber haunting</p>
-        <p>click the button below to cross the threshold</p>
+        <h1>distributed-chime</h1>
+        <p>a multi-person thing</p>
+        <section id = "nameStuff">
+          <p id="instruction">enter your handle to begin</p>
+          <input type="text" id="name">
+          <button id="submit" onclick="submit()">submit</button>
+        </section>
+        
         </br>
-        <button id = "buttonText" onclick="gust()">a wind</button>
+        <button id = "buttonText" onclick="gust()" style="opacity:0">mute</button>
         </br>
         </br>
-        <button id = "buttonStop" onclick="stop()">exorcist</button>
-        </br>
-        </br>
-        <p id="gust-state">the ghost state</p> 
-        <video width = "420" autoplay muted loop playsinline id="lumi" ></video>        
+        <section id = "participants">
+          <audio id="audioPlayer" autoplay></audio>
+          
+        </section>
+        <p class="gustState">idle...</p> 
+        <div id="videoPlayer">
+          <video width = "420" autoplay muted playsinline id="lumi" ></video>
+        </div>
   </body>
 </html>
